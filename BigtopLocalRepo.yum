@@ -1,0 +1,5 @@
+[BigTop-Local]
+name=Bigtop Local Repository
+#This should be the FQDN of the cluster master/gateway
+baseurl=http://ip-10-144-109-80:8000/
+gpgcheck=0

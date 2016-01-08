@@ -4,5 +4,8 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/bin/python /tmp/bigtopreposerver.py
+ExecStart=/bin/python /etc/BigTopLocalRepoServer/bigtopreposerver.py
 ExecStop=/bin/kill -WINCH {$MainPID}
+
+[Install]
+WantedBy=multi-user.target

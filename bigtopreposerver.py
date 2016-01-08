@@ -1,14 +1,14 @@
 #!/usr/bin/python
 
 #This is a simple python based http server that is designed to run as a daemon and serve the BigTop local package repository
-#Note the default package repository (/tmp/localrepo) and port (9000)
+#Note the default package repository (/etc/BigTopLocalRepoServer/localrepo) and port (9000)
 
 import SimpleHTTPServer
 import SocketServer
 import os
 
 PORT = 9000
-ABSOLUTE_PATH_LOCALREPO = "/tmp/localrepo"
+ABSOLUTE_PATH_LOCALREPO = "/etc/BigTopLocalRepoServer/localrepo"
 
 os.chdir(ABSOLUTE_PATH_LOCALREPO)
 

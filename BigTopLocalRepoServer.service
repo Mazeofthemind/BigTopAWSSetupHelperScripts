@@ -1,0 +1,8 @@
+[Unit]
+Description=Simple HTTP server for hosting local BigTop Repo
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/python /tmp/bigtopreposerver.py
+ExecStop=/bin/kill -WINCH {$MainPID}

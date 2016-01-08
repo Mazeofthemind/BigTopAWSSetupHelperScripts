@@ -5,17 +5,17 @@ BIGTOP_DEPENDENCIES=("puppet", "java-1.8.0-openjdk")
 
 #These are critical paths used later in the script, specifically the file being used to store the local directory, and the location of the server script
 HELPER_SCRIPT_DIR="." #Defaults to current working directory
-LOCALREPO_OUTPUT_DIR="$HELPER_SCRIPT_DIR/localrepo/"
+LOCAL_REPO_OUTPUT_DIR="$HELPER_SCRIPT_DIR/localrepo/"
 REPO_SERVER_SCRIPT_PATH="$HELPER_SCRIPT_DIR/bigtopreposerver.py"
 INSTALL_DIR="/etc/BigTopLocalRepoServer/"
 GATEWAY_FQDN=ip-10-0-0-62
-:'
+
 ####
 echo Downloading current versions of Apache BigTop packages from Jenkins to make local repo 
 for COMPONENT in ${BIGTOP_COMPONENTS[*]}
 do
 	wget http://ci.bigtop.apache.org/view/Packages/job/Bigtop-trunk-packages/BUILD_ENVIRONMENTS=centos-7,COMPONENTS=$COMPONENT,label=docker-slave/lastSuccessfulBuild/artifact/*zip*/archive.zip
-	unzip -j archive.zip -d $LOCALREPO_OUTPUT_DIR 
+	unzip -j archive.zip -d $LOCAL_REPO_OUTPUT_DIR 
 	rm archive.zip
 done
 
@@ -23,7 +23,7 @@ done
 echo Downloading current version of Apache Bigtop dependencies to make local repo
 for DEPENDENCY in ${BIGTOP_DEPENDENCIES[*]}
 do
-	repotrack -a x86_64 -p $LOCALREPO_OUTPUT_DIR $DEPENDENCY
+	repotrack -a x86_64 -p $LOCAL_REPO_OUTPUT_DIR $DEPENDENCY
 done
 
 ####Creates a local repository from the local download directory
@@ -31,7 +31,7 @@ echo Building local repository
 createrepo --database $LOCAL_REPO_OUTPUT_DIR
 
 ####Creates the .yum repo file from template
-cat >$HELPER_SCRIPT_DIR/BigTopLocalRepo.yum <<EOF
+cat >$LOCAL_REPO_OUTPUT_DIR/BigTopLocalRepo.yum <<EOF
 
 [BigTop-Local]
 name=Bigtop Local Repository
@@ -39,13 +39,13 @@ baseurl=http://$GATEWAY_FQDN:90000/
 gpgcheck=0
 
 EOF
-'
+
 ####Creates a Systemd HTTP server daemon for the localrepo which defaults to port 90000
 sudo adduser BigTopLocalRepoServer -s /sbin/nologin
 sudo mkdir $INSTALL_DIR
-chmod -R a+rx $LOCALREPO_OUTPUT_DIR
+chmod -R a+rx $LOCAL_REPO_OUTPUT_DIR
 chmod a+rx $REPO_SERVER_SCRIPT_PATH
-sudo cp -r $LOCALREPO_OUTPUT_DIR $INSTALL_DIR
+sudo cp -r $LOCAL_REPO_OUTPUT_DIR $INSTALL_DIR
 sudo cp $REPO_SERVER_SCRIPT_PATH $INSTALL_DIR
 sudo cp $HELPER_SCRIPT_DIR/BigTopLocalRepoServer.service /usr/lib/systemd/system/
 
